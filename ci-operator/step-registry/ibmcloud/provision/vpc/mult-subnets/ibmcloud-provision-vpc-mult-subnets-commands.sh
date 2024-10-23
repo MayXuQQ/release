@@ -4,8 +4,6 @@ set -o nounset
 set -o errexit
 set -o pipefail
 
-echo "MORE_SUBNETS_COUNT: ${MORE_SUBNETS_COUNT:-}"
-echo "Try to add more subnets: ${MORE_SUBNETS_COUNT:-} ..."
 MORE_SUBNETS_COUNT=15
 
 # IBM Cloud CLI login
@@ -37,16 +35,15 @@ function waitAvailable() {
 
 function create_subnets() {
     local preName="$1" vpc_name="$2" resource_group="$3" region="$4"
-    local zones zone_cidr zone_cidr_main subnetName
+    local zones subnetName
 
     # create subnets
     zones=("${region}-1" "${region}-2" "${region}-3")
 
     for zone in "${zones[@]}"; do
-    pgwName=$(ibmcloud is subnets | grep control-plane-${zone} | awk '{print $7}')
+        pgwName=$(ibmcloud is subnets | grep control-plane-${zone} | awk '{print $7}')
 
-    for id in {1..${MORE_SUBNETS_COUNT}}
-        do
+        for id in $(seq 1 ${MORE_SUBNETS_COUNT}); do
             subnetName="${preName}-control-plane-${id}"
             "${IBMCLOUD_CLI}" is subnet-create ${subnetName} ${vpc_name} --zone ${zone} --ipv4-address-count 8 --resource-group-name ${resource_group} --pgw ${pgwName} || return 1
             waitAvailable "subnet" ${subnetName}
@@ -64,11 +61,15 @@ function check_vpc() {
 
 handle_error() {
     echo "An error occurred!"
-    sleep 3h
+    sleep 1h
 }
 
 ibmcloud_login
 trap 'handle_error' ERR
+
+echo "MORE_SUBNETS_COUNT: ${MORE_SUBNETS_COUNT:-}"
+echo "Try to add more subnets: ${MORE_SUBNETS_COUNT:-} ..."
+
 rg_file="${SHARED_DIR}/ibmcloud_resource_group"
 if [ -f "${rg_file}" ]; then
     resource_group=$(cat "${rg_file}")
@@ -90,19 +91,10 @@ workdir="$(mktemp -d)"
 cat "${vpc_info_file}" | jq -c -r '[.subnets[] | select(.name|test("control-plane")) | .name]' | yq-go r -P - >${workdir}/controlPlaneSubnets.yaml
 cat "${vpc_info_file}" | jq -c -r '[.subnets[] | select(.name|test("compute")) | .name]' | yq-go r -P - >${workdir}/computerSubnets.yaml
 
-cat > "${SHARED_DIR}/customer_vpc_subnets.yaml" << EOF
-platform:
-  ibmcloud:
-    ${rg_name_line}
-    vpcName: ${vpc_name}
-networking:
-  machineNetwork:
-  - cidr: ${vpcAddressPre}     
-EOF
 yq-go w -i "${SHARED_DIR}/customer_vpc_subnets.yaml" 'platform.ibmcloud.controlPlaneSubnets' -f ${workdir}/controlPlaneSubnets.yaml
 yq-go w -i "${SHARED_DIR}/customer_vpc_subnets.yaml" 'platform.ibmcloud.computeSubnets' -f ${workdir}/computerSubnets.yaml
 rm -rfd ${workdir}
 cat ${SHARED_DIR}/customer_vpc_subnets.yaml
 
 echo "debug...."
-sleep 3h
+sleep 1h
