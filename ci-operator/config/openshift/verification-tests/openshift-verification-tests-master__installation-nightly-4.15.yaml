@@ -370,7 +370,7 @@ tests:
     cluster_profile: ibmcloud-qe
     test:
     - chain: cucushift-installer-check-cluster-health
-    workflow: cucushift-installer-rehearse-ibmcloud-ipi-mult-subnets    
+    workflow: cucushift-installer-rehearse-ibmcloud-ipi-mult-subnets
 - as: nutanix-ipi-zones-single-f28
   cluster: build01
   cron: 23 1 14 * *

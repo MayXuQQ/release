@@ -278,7 +278,7 @@ tests:
     cluster_profile: ibmcloud-qe
     test:
     - chain: cucushift-installer-check-cluster-health
-    workflow: cucushift-installer-rehearse-ibmcloud-ipi-mult-subnets    
+    workflow: cucushift-installer-rehearse-ibmcloud-ipi-mult-subnets
 - as: vsphere-ipi-customized-resource-f28
   cron: 56 22 18 * *
   steps:
