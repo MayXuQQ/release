@@ -49,7 +49,7 @@ function create_subnets() {
             subnetName="${preName}-control-plane-${zid}-${id}"
             "${IBMCLOUD_CLI}" is subnet-create ${subnetName} ${vpc_name} --zone ${zone} --ipv4-address-count 8 --resource-group-name ${resource_group} --pgw ${pgwName} || return 1
             waitAvailable "subnet" ${subnetName}
-            echo "succeed created subnet ${id} in ${zone}================================"
+            echo "succeed created subnet ${zid}-${id} in ${zone}================================"
         done
     done
 }
@@ -60,14 +60,7 @@ function check_vpc() {
     "${IBMCLOUD_CLI}" is vpc ${vpcName} --show-attached --output JSON > "${vpc_info_file}" || return 1
 }
 
-
-handle_error() {
-    echo "An error occurred!"
-    sleep 1h
-}
-
 ibmcloud_login
-trap 'handle_error' ERR
 
 echo "MORE_SUBNETS_COUNT: ${MORE_SUBNETS_COUNT:-}"
 echo "Try to add more subnets: ${MORE_SUBNETS_COUNT:-} ..."
@@ -97,6 +90,3 @@ yq-go w -i "${SHARED_DIR}/customer_vpc_subnets.yaml" 'platform.ibmcloud.controlP
 yq-go w -i "${SHARED_DIR}/customer_vpc_subnets.yaml" 'platform.ibmcloud.computeSubnets' -f ${workdir}/computerSubnets.yaml
 rm -rfd ${workdir}
 cat ${SHARED_DIR}/customer_vpc_subnets.yaml
-
-echo "debug...."
-sleep 1h
