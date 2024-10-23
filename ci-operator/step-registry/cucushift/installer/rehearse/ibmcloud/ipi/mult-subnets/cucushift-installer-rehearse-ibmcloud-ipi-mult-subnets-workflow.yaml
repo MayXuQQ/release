@@ -4,7 +4,7 @@ workflow:
     pre:
     - chain: cucushift-installer-rehearse-ibmcloud-ipi-mult-subnets-provision
     post:
-    - chain: cucushift-installer-rehearse-ibmcloud-ipi-deprovision-check
+    - chain: cucushift-installer-rehearse-ibmcloud-ipi-mult-subnets-deprovision
     env:
       BASE_DOMAIN: "ibmcloud.qe.devcluster.openshift.com"
   documentation: |-
