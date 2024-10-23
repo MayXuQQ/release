@@ -39,12 +39,14 @@ function create_subnets() {
 
     # create subnets
     zones=("${region}-1" "${region}-2" "${region}-3")
-
+    prefix="${region}-"
+    
     for zone in "${zones[@]}"; do
         pgwName=$(ibmcloud is subnets | grep control-plane-${zone} | awk '{print $7}')
-
+    
+        zid=${zone#$prefix}
         for id in $(seq 1 ${MORE_SUBNETS_COUNT}); do
-            subnetName="${preName}-control-plane-${id}"
+            subnetName="${preName}-control-plane-${zid}-${id}"
             "${IBMCLOUD_CLI}" is subnet-create ${subnetName} ${vpc_name} --zone ${zone} --ipv4-address-count 8 --resource-group-name ${resource_group} --pgw ${pgwName} || return 1
             waitAvailable "subnet" ${subnetName}
             echo "succeed created subnet ${id} in ${zone}================================"
