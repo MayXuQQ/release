@@ -39,7 +39,7 @@ function create_subnets() {
     local zones subnetName
 
     # create subnets
-    zones=("${region}-1" "${region}-2" "${region}-3")
+    #zones=("${region}-1" "${region}-2" "${region}-3")
     prefix="${region}-"
     zone="${region}-1"
     #for zone in "${zones[@]}"; do
