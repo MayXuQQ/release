@@ -36,8 +36,8 @@ function waitAvailable() {
 
 function create_subnets() {
     local preName="$1" vpc_name="$2" resource_group="$3" region="$4"
-    local zones subnetName
-
+    local subnetName
+    #zones
     # create subnets
     #zones=("${region}-1" "${region}-2" "${region}-3")
     prefix="${region}-"
