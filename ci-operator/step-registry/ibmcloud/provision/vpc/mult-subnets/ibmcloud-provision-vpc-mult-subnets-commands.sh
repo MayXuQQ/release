@@ -4,7 +4,7 @@ set -o nounset
 set -o errexit
 set -o pipefail
 
-MORE_SUBNETS_COUNT=48
+MORE_SUBNETS_COUNT=5
 #15
 
 # IBM Cloud CLI login
@@ -36,13 +36,12 @@ function waitAvailable() {
 
 function create_subnets() {
     local preName="$1" vpc_name="$2" resource_group="$3" region="$4"
-    local subnetName
-    #zones
+    local zones subnetName
+ 
     # create subnets
-    #zones=("${region}-1" "${region}-2" "${region}-3")
+    zones=("${region}-1" "${region}-2" "${region}-3")
     prefix="${region}-"
-    zone="${region}-1"
-    #for zone in "${zones[@]}"; do
+    for zone in "${zones[@]}"; do
         pgwName=$(ibmcloud is subnets | grep control-plane-${zone} | awk '{print $7}')
     
         zid=${zone#$prefix}
@@ -52,7 +51,7 @@ function create_subnets() {
             waitAvailable "subnet" ${subnetName}
             echo "succeed created subnet ${zid}-${id} in ${zone}================================"
         done
-    #done
+    done
 }
 
 function check_vpc() {
