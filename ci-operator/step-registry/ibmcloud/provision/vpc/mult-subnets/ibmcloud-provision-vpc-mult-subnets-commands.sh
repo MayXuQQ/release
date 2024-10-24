@@ -4,7 +4,7 @@ set -o nounset
 set -o errexit
 set -o pipefail
 
-MORE_SUBNETS_COUNT=5
+MORE_SUBNETS_COUNT=4
 #15
 
 # IBM Cloud CLI login
